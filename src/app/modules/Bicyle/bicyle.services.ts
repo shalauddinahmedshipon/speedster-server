@@ -5,7 +5,12 @@ const createProductToDB =async(product:Bicycle)=>{
   const result = await Product.create(product);
   return result
 }
+const getAllProductsFromDB =async(query:object)=>{
+  const result = await Product.find(query).exec();
+  return result
+}
 
 export const productServices ={
-  createProductToDB
+  createProductToDB,
+  getAllProductsFromDB
 }
