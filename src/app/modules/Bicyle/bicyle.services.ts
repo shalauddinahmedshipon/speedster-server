@@ -1,4 +1,3 @@
-import { ObjectId } from "mongoose";
 import { Bicycle } from "./bicyle.interface";
 import { Product } from "./bicyle.model";
 
@@ -14,9 +13,15 @@ const getASingleProductFromDB =async(productId:string)=>{
   const result = await Product.findById(productId)
   return result
 }
+const updateProductFromDB =async(productId:string,updateFields:object)=>{
+  const result = await Product.findByIdAndUpdate(productId,updateFields,{new:true,runValidators:true})
+  return result
+}
 
 export const productServices ={
   createProductToDB,
   getAllProductsFromDB,
-  getASingleProductFromDB
+  getASingleProductFromDB,
+  updateProductFromDB
+
 }

@@ -39,7 +39,8 @@ const ProductSchema = new Schema<Bicycle>(
    
   },
   {
-    timestamps:true
+    timestamps:true,
+    strict:true
   }
 )
 
