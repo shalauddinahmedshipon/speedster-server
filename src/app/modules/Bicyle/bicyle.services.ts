@@ -18,10 +18,17 @@ const updateProductFromDB =async(productId:string,updateFields:object)=>{
   return result
 }
 
+
+const deleteProductFromDB =async(productId:string)=>{
+  const result = await Product.findByIdAndDelete(productId)
+  return result
+}
+
 export const productServices ={
   createProductToDB,
   getAllProductsFromDB,
   getASingleProductFromDB,
-  updateProductFromDB
+  updateProductFromDB,
+  deleteProductFromDB
 
 }
