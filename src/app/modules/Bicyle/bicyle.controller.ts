@@ -8,7 +8,7 @@ const createProduct =async(req:Request,res:Response)=>{
     const product = req.body.product;
    const result = await productServices.createProductToDB(product);
     res.status(200).json({
-      message: "Bicycle created statusfully",
+      message: "Bicycle created successfully",
       status: true,
       data: result
     })
@@ -38,7 +38,7 @@ const getAllProducts =async(req:Request,res:Response)=>{
     } 
    const result = await productServices.getAllProductsFromDB(query);
     res.status(200).json({
-      message: "Bicycles retrieved statusfully",
+      message: "Bicycles retrieved successfully",
       status: true,
       data: result
     })
@@ -59,7 +59,7 @@ const getASingleProduct =async(req:Request,res:Response)=>{
     const productId = req.params.productId;
   const result = await productServices.getASingleProductFromDB(productId);
   res.status(200).json({
-    message: "Bicycles retrieved statusfully",
+    message: "Bicycles retrieved successfully",
     status: true,
     data: result
   })
@@ -80,7 +80,7 @@ const updateProduct =async(req:Request,res:Response)=>{
     const updateFields = req.body;
   const result = await productServices.updateProductFromDB(productId,updateFields);
   res.status(200).json({
-    message: "Bicycle updated statusfully",
+    message: "Bicycle updated successfully",
     status: true,
     data: result
   })
@@ -101,7 +101,7 @@ const deleteProduct =async(req:Request,res:Response)=>{
     await productServices.deleteProductFromDB(productId);
  
   res.status(200).json({
-    message: "Bicycle deleted statusfully",
+    message: "Bicycle deleted successfully",
     status: true,
     data: {}
   })

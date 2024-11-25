@@ -30,7 +30,7 @@ const ProductSchema = new Schema<Bicycle>(
     quantity:{
       type:Number,
       required:[true,"the quantity of a product is required"],
-      min:[1,'the number of the quantity of a product is minimum 1 ']
+      min:[0,"quantity must be a positive number"]
     },
     inStock:{
       type:Boolean,
