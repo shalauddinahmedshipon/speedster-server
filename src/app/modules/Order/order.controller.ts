@@ -6,9 +6,6 @@ import { productServices } from "../Bicyle/bicyle.services";
 
 
 const createOrder = async(req:Request,res:Response)=>{
- 
- 
-
   try {
     const order:Order = req.body;
     const OrderQuantity = order.quantity;
@@ -69,10 +66,30 @@ const createOrder = async(req:Request,res:Response)=>{
   }
 
 
+}
 
 
 
-
+const totalRevenue= async(req:Request, res:Response)=>{
+try {
+  const result = await orderServices.totalRevenueFromDB();
+  res.status(200).json({
+    message: "Revenue calculated successfully",
+    status: true,
+    data: {
+      totalRevenue: result
+    }
+})
+  
+} catch (error:any) {
+  res.status(500).json(
+    {
+      message: "something went wrong",
+      status: false,
+      error: error,
+      stack:config.node_env==='development'? error.stack:undefined
+    })
+}
 
 
 }
@@ -80,5 +97,6 @@ const createOrder = async(req:Request,res:Response)=>{
 
 
 export const orderControllers ={
-  createOrder
+  createOrder,
+  totalRevenue
 }
