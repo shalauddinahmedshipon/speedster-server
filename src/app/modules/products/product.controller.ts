@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { productServices } from './bicyle.services';
+import { productServices } from './product.services';
 import config from '../../config';
 
 const createProduct = async (req: Request, res: Response) => {

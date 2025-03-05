@@ -1,5 +1,5 @@
-import { Bicycle } from './bicyle.interface';
-import { Product } from './bicyle.model';
+import { Bicycle } from './product.interface';
+import { Product } from './product.model';
 
 const createProductToDB = async (product: Bicycle) => {
   const result = await Product.create(product);

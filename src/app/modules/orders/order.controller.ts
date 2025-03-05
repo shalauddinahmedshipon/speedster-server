@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import config from '../../config';
 import { Order } from './order.interface';
 import { orderServices } from './order.services';
-import { productServices } from '../Bicyle/bicyle.services';
+import { productServices } from '../products/product.services';
 
 const createOrder = async (req: Request, res: Response) => {
   try {
