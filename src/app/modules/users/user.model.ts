@@ -14,6 +14,7 @@ const userSchema = new Schema<TUser>(
     passwordChangedAt: { type: Date, default: null },
     status: { type: String, enum: ["in-progress", "blocked"], default: "in-progress" },
     role: { type: String, enum: ["superAdmin", "admin", "customer"], default: "customer" },
+    isDeleted:{type:Boolean,default:false}
   },
   {
     timestamps: true,

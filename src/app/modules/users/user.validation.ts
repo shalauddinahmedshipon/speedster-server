@@ -9,20 +9,11 @@ const registerUserValidationSchema = z.object({
       .min(6, { message: "Password must be at least 6 characters long" }),
     status: z.enum(["in-progress", "blocked"]).optional().default("in-progress"),
     role: z.enum(["superAdmin", "admin", "customer"]).optional().default("customer"),
+    isDeleted:z.boolean().optional().default(false)
   }),
 });
 
-const updateUserProfileValidationSchema = z.object({
-  body: z.object({
-    name: z.string().min(1, { message: "Name is required" }).trim().optional(),
-    email: z
-      .string()
-      .email({ message: "Invalid email format" })
-      .optional(),
-    status: z.enum(["in-progress", "blocked"]).optional(),
-    role: z.enum(["superAdmin", "admin", "customer"]).optional(),
-  }),
-});
+
 
 const updateUserPasswordValidationSchema = z.object({
   body: z.object({
@@ -34,6 +25,5 @@ const updateUserPasswordValidationSchema = z.object({
 
 export const userValidation = {
   registerUserValidationSchema,
-  updateUserProfileValidationSchema,
   updateUserPasswordValidationSchema,
 };
