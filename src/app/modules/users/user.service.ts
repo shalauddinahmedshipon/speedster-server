@@ -2,10 +2,34 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "../../error/AppError";
 import { TUser } from "./user.interface";
 import User from "./user.model";
+import { JwtPayload } from "jsonwebtoken";
+import { createToken } from "../auth/auth.utils";
+import config from "../../config";
+
 
 const registerUserIntoDB = async (payload: TUser) => {
-  const result = await User.create(payload);
-  return result;
+  const user = await User.create(payload);
+  const jwtPayload = {
+      email: user.email,
+      role: user.role!,
+    };
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.access_token_expiresIn as string,
+    );
+  
+    const refreshToken = createToken(
+      jwtPayload,
+      config.jwt_refresh_secret as string,
+      config.refresh_token_expiresIn as string,
+    );
+  
+  return {
+    user,
+    accessToken,
+    refreshToken
+  };
 };
 
 const getAllUserFromDB = async () => {
@@ -66,10 +90,16 @@ const changeStatusFromDB = async (
 };
 
 
-const deleteUserFromDB = async (userId: string) => {
+const deleteUserFromDB = async (userId: string,payload:JwtPayload) => {
   const isUserExist = await User.findById(userId);
   if (!isUserExist) {
     throw new AppError(StatusCodes.NOT_FOUND, 'User does not Exist');
+  }
+  if(isUserExist.role==="superAdmin"){
+    throw new AppError(StatusCodes.BAD_REQUEST, 'Super admin can not be deleted!');
+  }
+  if(isUserExist.email===payload?.email){
+    throw new AppError(StatusCodes.BAD_REQUEST, 'User can not delete his own account!',);
   }
   const result = await User.findByIdAndUpdate(userId,{isDeleted:true},{new:true});
   return result;

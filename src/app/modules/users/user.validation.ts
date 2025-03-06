@@ -15,15 +15,13 @@ const registerUserValidationSchema = z.object({
 
 
 
-const updateUserPasswordValidationSchema = z.object({
+const updateUserStatusValidationScheme = z.object({
   body: z.object({
-    password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters long" }),
+    status: z.enum(['in-progress', 'blocked']),
   }),
 });
 
 export const userValidation = {
   registerUserValidationSchema,
-  updateUserPasswordValidationSchema,
+  updateUserStatusValidationScheme
 };
