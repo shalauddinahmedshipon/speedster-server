@@ -5,7 +5,7 @@ import slugify from "slugify";
 const SubCategorySchema = new Schema<TSubCategory>(
   {
     name: { type: String, required: true, unique: true, trim: true },
-    slug: { type: String, required: true, unique: true, lowercase: true },
+    slug: { type: String, unique: true, lowercase: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     isDeleted: { type: Boolean, default: false },
   },

@@ -26,6 +26,9 @@ const getSingleCategoryFromDB = async (id: string) => {
   if (!category) {
     throw new AppError(StatusCodes.NOT_FOUND, "Category not found");
   }
+  if(category.isDeleted===true){
+    throw new AppError(StatusCodes.NOT_FOUND, "Category not found");
+  }
   return category;
 };
 

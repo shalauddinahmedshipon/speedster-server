@@ -9,7 +9,7 @@ import { USER_ROLE } from "../users/user.constant";
 const router = Router();
 
 router.post(
-  "/",
+  "/create-subcategory",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validationRequest(subCategoryValidation.createSubCategoryValidationSchema),
   subCategoryController.createSubCategory

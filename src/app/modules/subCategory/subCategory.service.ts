@@ -2,8 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "../../error/AppError";
 import SubCategory from "./subCategory.model";
 import { TSubCategory } from "./subCategory.interface";
-import mongoose from "mongoose";
 import { Category } from "../category/category.model";
+import mongoose from "mongoose";
 
 // Get All Subcategories
 const getAllSubCategoriesFromDB = async () => {
@@ -26,16 +26,49 @@ const getSubCategoriesByCategory = async (categoryId: string) => {
   return subCategories;
 };
 
-// Create Subcategory
-const createSubCategoryInDB = async (payload: TSubCategory) => {
-  const existingSubCategory = await SubCategory.findOne({ name: payload.name });
-  if (existingSubCategory) {
-    throw new AppError(StatusCodes.BAD_REQUEST, "Subcategory with this name already exists");
-  }
 
-  const subCategory = await SubCategory.create(payload);
-  return subCategory;
+
+
+// Create Subcategory with Transaction
+const createSubCategoryInDB = async (payload: TSubCategory) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const categoryExists = await Category.findById(payload.category).session(session);
+    if (!categoryExists) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Category not found");
+    }
+
+   
+    const existingSubCategory = await SubCategory.findOne({ name: payload.name }).session(session);
+    if (existingSubCategory) {
+      throw new AppError(StatusCodes.BAD_REQUEST, "Subcategory with this name already exists");
+    }
+
+
+    const subCategory = await SubCategory.create([payload], { session });
+
+    await Category.findByIdAndUpdate(
+      payload.category,
+      { $push: { subCategories: subCategory[0]._id } },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return subCategory[0];
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
+
+export default createSubCategoryInDB;
+
+
 
 // Update Subcategory
 const updateSubCategoryInDB = async (id: string, payload: Partial<TSubCategory>) => {
@@ -48,16 +81,7 @@ const updateSubCategoryInDB = async (id: string, payload: Partial<TSubCategory>)
   return updatedSubCategory;
 };
 
-// Delete Subcategory
-const deleteSubCategoryFromDB = async (id: string) => {
-  const subCategory = await SubCategory.findById(id);
-  if (!subCategory) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Subcategory not found");
-  }
 
-  const result = await SubCategory.findByIdAndDelete(id);
-  return result;
-};
 
 // Soft Delete Subcategory
 const softDeleteSubCategoryFromDB = async (id: string) => {
@@ -68,48 +92,19 @@ const softDeleteSubCategoryFromDB = async (id: string) => {
 
   subCategory.isDeleted = true;
   await subCategory.save();
-  return subCategory;
-};
 
-// Associate Subcategory with Category
-const addSubCategoryToCategory = async (categoryId: string, subCategoryId: string) => {
-  const subCategory = await SubCategory.findById(subCategoryId);
-  if (!subCategory) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Subcategory not found");
-  }
-
-  subCategory.category = new mongoose.Types.ObjectId(categoryId);
-  await subCategory.save();
+  
+  await Category.findByIdAndUpdate(subCategory.category, { $pull: { subCategories: id } });
 
   return subCategory;
 };
 
-const removeSubCategoryFromCategory = async (categoryId: string, subCategoryId: string) => {
-  const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
-  const subCategoryObjectId = new mongoose.Types.ObjectId(subCategoryId);
-
-  // Find and update category in one step using $pull
-  const category = await Category.findByIdAndUpdate(
-    categoryObjectId,
-    { $pull: { subCategories: subCategoryObjectId } }, // ✅ Removes subcategory
-    { new: true } // ✅ Returns updated category
-  );
-
-  if (!category) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Category not found");
-  }
-
-  return category;
-};
 
 export const subCategoryService = {
   getAllSubCategoriesFromDB,
-  getSingleSubCategoryFromDB, // ✅ Added missing API
+  getSingleSubCategoryFromDB, 
   getSubCategoriesByCategory,
   createSubCategoryInDB,
   updateSubCategoryInDB,
-  deleteSubCategoryFromDB,
   softDeleteSubCategoryFromDB,
-  addSubCategoryToCategory,
-  removeSubCategoryFromCategory, // ✅ Added missing API
 };
