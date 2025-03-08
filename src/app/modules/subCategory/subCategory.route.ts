@@ -34,11 +34,7 @@ router.patch(
   subCategoryController.updateSubCategory
 );
 
-router.delete(
-  "/:id",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
-  subCategoryController.deleteSubCategory
-);
+
 
 router.patch(
   "/:id/soft-delete",
@@ -46,16 +42,6 @@ router.patch(
   subCategoryController.softDeleteSubCategory
 );
 
-router.post(
-  "/associate",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
-  subCategoryController.addSubCategoryToCategory
-);
 
-router.post(
-  "/remove",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
-  subCategoryController.removeSubCategoryFromCategory
-);
 
 export const subCategoryRoutes = router;

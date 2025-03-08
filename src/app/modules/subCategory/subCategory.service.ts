@@ -4,10 +4,11 @@ import SubCategory from "./subCategory.model";
 import { TSubCategory } from "./subCategory.interface";
 import { Category } from "../category/category.model";
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 // Get All Subcategories
 const getAllSubCategoriesFromDB = async () => {
-  const subCategories = await SubCategory.find().populate("category");
+  const subCategories = await SubCategory.find({isDeleted:{$ne:true}}).populate("category");
   return subCategories;
 };
 
@@ -17,12 +18,15 @@ const getSingleSubCategoryFromDB = async (id: string) => {
   if (!subCategory) {
     throw new AppError(StatusCodes.NOT_FOUND, "Subcategory not found");
   }
+  if(subCategory?.isDeleted===true){
+    throw new AppError(StatusCodes.NOT_FOUND, "Subcategory not found");
+  }
   return subCategory;
 };
 
 // Get Subcategories by Category
 const getSubCategoriesByCategory = async (categoryId: string) => {
-  const subCategories = await SubCategory.find({ category: categoryId });
+  const subCategories = await SubCategory.find({ category: categoryId,isDeleted:false });
   return subCategories;
 };
 
@@ -69,16 +73,47 @@ const createSubCategoryInDB = async (payload: TSubCategory) => {
 export default createSubCategoryInDB;
 
 
-
-// Update Subcategory
+// Update Subcategory with Category Handling
 const updateSubCategoryInDB = async (id: string, payload: Partial<TSubCategory>) => {
-  const subCategory = await SubCategory.findById(id);
-  if (!subCategory) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Subcategory not found");
-  }
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  const updatedSubCategory = await SubCategory.findByIdAndUpdate(id, payload, { new: true });
-  return updatedSubCategory;
+  try {
+    const subCategory = await SubCategory.findById(id).session(session);
+    if (!subCategory) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Subcategory not found");
+    }
+    if (payload.name) {
+      payload.slug = slugify(payload.name, { lower: true, strict: true });
+    }
+
+    if (payload.category && payload.category.toString() !== subCategory.category.toString()) {
+      await Category.findByIdAndUpdate(
+        subCategory.category,
+        { $pull: { subCategories: id } },
+        { session }
+      );
+      await Category.findByIdAndUpdate(
+        payload.category,
+        { $push: { subCategories: id } },
+        { session }
+      );
+    }
+    const updatedSubCategory = await SubCategory.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true,
+      session,
+    });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return updatedSubCategory;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 
@@ -108,3 +143,6 @@ export const subCategoryService = {
   updateSubCategoryInDB,
   softDeleteSubCategoryFromDB,
 };
+
+
+

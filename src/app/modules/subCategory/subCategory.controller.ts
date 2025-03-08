@@ -54,13 +54,7 @@ export const updateSubCategory = catchAsync(async (req: Request, res: Response) 
 });
 
 
-export const deleteSubCategory = catchAsync(async (req: Request, res: Response) => {
-  await subCategoryService.deleteSubCategoryFromDB(req.params.id);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    message: "Subcategory deleted successfully",
-  });
-});
+
 
 
 export const softDeleteSubCategory = catchAsync(async (req: Request, res: Response) => {
@@ -73,26 +67,10 @@ export const softDeleteSubCategory = catchAsync(async (req: Request, res: Respon
 });
 
 
-export const addSubCategoryToCategory = catchAsync(async (req: Request, res: Response) => {
-  const { categoryId, subCategoryId } = req.body;
-  const subCategory = await subCategoryService.addSubCategoryToCategory(categoryId, subCategoryId);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    message: "Subcategory added to category successfully",
-    data: subCategory,
-  });
-});
 
 
-export const removeSubCategoryFromCategory = catchAsync(async (req: Request, res: Response) => {
-  const { categoryId, subCategoryId } = req.body;
-  const category = await subCategoryService.removeSubCategoryFromCategory(categoryId, subCategoryId);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    message: "Subcategory removed from category successfully",
-    data: category,
-  });
-});
+
+
 
 export const subCategoryController = {
   createSubCategory,
@@ -100,8 +78,6 @@ export const subCategoryController = {
   getSubCategoryById,
   getSubCategoriesByCategory,
   updateSubCategory,
-  deleteSubCategory,
   softDeleteSubCategory,
-  addSubCategoryToCategory,
-  removeSubCategoryFromCategory,
+
 };
